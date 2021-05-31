@@ -64,6 +64,12 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
+  if (persons.some(p => p.name.toLowerCase() === body.name.toLowerCase())) {
+    return response.status(409).json({
+      error: "person already exists"
+    })
+  }
+
   const person = {
     ...body,
     id: generateId()

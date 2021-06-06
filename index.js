@@ -35,12 +35,6 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
-const generateId = (min = 1000, max = 10000) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
-};
-
 app.post("/api/persons", (request, response) => {
   const body = request.body;
 
@@ -51,25 +45,19 @@ app.post("/api/persons", (request, response) => {
   }
 
   if (!body.number) {
-    return response.status(400).json({
+    return response.status(409).json({
       error: "number missing",
     });
   }
 
-  if (persons.some((p) => p.name.toLowerCase() === body.name.toLowerCase())) {
-    return response.status(409).json({
-      error: "person already exists",
-    });
-  }
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  });
 
-  const person = {
-    ...body,
-    id: generateId(),
-  };
-
-  persons.push(person);
-
-  response.json(person);
+  person.save().then((savedPerson) => {
+    response.json(savedPerson);
+  });
 });
 
 app.get("/info", (request, response) => {

@@ -23,10 +23,11 @@ app.get("/api/persons", (request, response, next) => {
 })
 
 app.get("/api/persons/:id", (request, response, next) => {
-  const id = Number(request.params.id)
-  const person = persons.find((p) => p.id === id)
-  if (person) response.json(person)
-  else response.status(404).end()
+  Person.findById(request.params.id)
+    .then((person) => {
+      response.json(person)
+    })
+    .catch((error) => next(error))
 })
 
 app.delete("/api/persons/:id", (request, response, next) => {
@@ -89,8 +90,12 @@ app.put("/api/persons/:id", (request, response, next) => {
     .catch((error) => next(error))
 })
 
-app.get("/info", (request, response) => {
-  response.send(`<p>Phonebook has info for ${persons.length} people</p>${new Date()}`)
+app.get("/info", (request, response, next) => {
+  Person.count({})
+    .then((count) => {
+      response.send(`<p>Phonebook has info for ${count} people</p>${new Date()}`)
+    })
+    .catch((error) => next(error))
 })
 
 const unknownEndpoint = (request, response) => {
